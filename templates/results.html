@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>music league filter</title>
+	<style>
+		body {
+			font-family: Arial, sans-serif;
+			padding: 20px;
+		}
+		input, button {
+			padding: 10px;
+			font-size: 1rem;
+			margin: 10px 0;
+		}
+		button {
+			cursor: pointer;
+		}
+		ul {
+			list-style: none;
+			padding: 0;
+		}
+		li {
+			margin: 5px 0;
+		}
+	</style>
+</head>
+<body>
+	<button onclick="window.location.href='/'">Back</button>
+	<h2>You are viewing {{ content }} for {{ username }}</h2>
+
+	<h4>Filter options</h4>
+	<p id="buttons">
+		<button onclick="shortNsweet(2)">Songs under 2 minutes</button>
+		<button onclick="nonParliamo()">Songs not in English</button>
+		<button onclick="dontSpeak(5)">Songs with maximum 5 character titles</button>
+	</p>
+
+	{% for track in tracks %}
+		<div class="track">
+			<div class="details">
+				<a href="{{ track.url }}" target="_blank">
+					{{ track.artist['#text'] if track.artist['#text'] is defined else track.artist['name'] }} — {{ track.name }}
+				</a>
+				<small>
+					{% if track.duration %}
+						Duration: {{ (track.duration | int) // 60 }}:{{ '%02d' % ((track.duration | int) % 60) }}
+					{% elif durations is defined and durations[loop.index0] %}
+						Duration: {{ (durations[loop.index0] | int) // 60 }}:{{ '%02d' % ((durations[loop.index0] | int) % 60) }}
+					{% endif %}
+					{% if track.playcount %}
+						&nbsp;|&nbsp; Playcount: {{ track.playcount }}
+					{% elif playcounts is defined and playcounts[loop.index0] %}
+						&nbsp;|&nbsp; Playcount: {{ playcounts[loop.index0] }}
+					{% endif %}
+				</small>
+			</div>
+		</div>
+	{% endfor %}
+
+	<script>
+		async function shortNsweet(duration) {
+			const durationSecs = duration * 60
+			const username = "{{ username }}";
+			const content = "{{ content }}";
+
+			const loadingMsg = document.getElementById("buttons");
+			loadingMsg.innerHTML = "Checking all tracks...\nThis might take a while.";
+
+			try {
+				const response = await fetch("/shortnsweet", {
+					method: "POST",
+					headers: {
+						"Content-Type": "application/json"
+					},
+					body: JSON.stringify({ username: username, duration: durationSecs, dataset: content })
+				});
+				
+				const html = await response.text();
+
+				document.open();
+				document.write(html);
+				document.close();
+
+			} catch (error) {
+				console.error(error);
+			}
+		}
+
+		async function nonParliamo() {
+			const username = "{{ username }}";
+			const content = "{{ content }}";
+
+			const loadingMsg = document.getElementById("buttons");
+			loadingMsg.innerHTML = "Checking all tracks...\nThis might take a while.";
+
+			try {
+				const response = await fetch("/nonparliamo", {
+					method: "POST",
+					headers: {
+						"Content-Type": "application/json"
+					},
+					body: JSON.stringify({ username: username, dataset: content })
+				});
+				
+				const html = await response.text();
+
+				document.open();
+				document.write(html);
+				document.close();
+
+			} catch (error) {
+				console.error(error);
+			}
+		}
+		
+		async function dontSpeak(length) {
+			const username = "{{ username }}";
+			const content = "{{ content }}";
+
+			const loadingMsg = document.getElementById("buttons");
+			loadingMsg.innerHTML = "Checking all tracks...\nThis might take a while.";
+
+			try {
+				const response = await fetch("/dontspeak", {
+					method: "POST",
+					headers: {
+						"Content-Type": "application/json"
+					},
+					body: JSON.stringify({ username: username, chars: length, dataset: content })
+				});
+				
+				const html = await response.text();
+
+				document.open();
+				document.write(html);
+				document.close();
+
+			} catch (error) {
+				console.error(error);
+			}
+		}
+	</script>
+</body>
+</html>

@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>music league filter</title>
+	<style>
+		body {
+			font-family: Arial, sans-serif;
+			padding: 20px;
+		}
+		input, button {
+			padding: 10px;
+			font-size: 1rem;
+			margin: 10px 0;
+		}
+		button {
+			cursor: pointer;
+		}
+		ul {
+			list-style: none;
+			padding: 0;
+		}
+		li {
+			margin: 5px 0;
+		}
+	</style>
+</head>
+<body>
+	<h1>Music League Filter</h1>
+	<p>Filter your music library for various Music League round requirements.</p>
+
+	<h3>Enter your Last.fm username</h3>
+
+	<input type="text" id="username" placeholder="Last.fm username">
+	<p>After your tracks load, you will be able to choose between filters for upcoming rounds of Elliot Roberts Discord Music League.</p>
+
+	<p id="buttons">
+		<button onclick="getTopTracks()">Show me top 1000 tracks</button>
+		<button onclick="getScrobbles()">Show me all scrobbles</button>
+	</p>
+
+	<script>
+		async function getScrobbles() {
+			const username = document.getElementById("username").value;
+
+			if (!username) {
+				alert("Please enter a username!");
+				return;
+			}
+
+			// Show loading message while waiting for the response
+			const loadingMsg = document.getElementById("buttons");
+			loadingMsg.innerHTML = "Loading...\nThis might take a while.";
+
+			try {
+				const response = await fetch("/scrobbles", {
+					method: "POST",
+					headers: {
+						"Content-Type": "application/json"
+					},
+					body: JSON.stringify({ username: username })
+				});
+				
+				const html = await response.text();
+
+				document.open();
+				document.write(html);
+				document.close();
+
+			} catch (error) {
+				loadingMsg.innerHTML = "<li>Error fetching data.</li>";
+				console.error(error);
+			}
+		}
+
+		async function getTopTracks() {
+			const username = document.getElementById("username").value;
+
+			if (!username) {
+				alert("Please enter a username!");
+				return;
+			}
+
+			// Show loading message while waiting for the response
+			const loadingMsg = document.getElementById("buttons");
+			loadingMsg.innerHTML = "Loading...\nThis might take a while.";
+
+			try {
+				const response = await fetch("/top1000", {
+					method: "POST",
+					headers: {
+						"Content-Type": "application/json"
+					},
+					body: JSON.stringify({ username: username })
+				});
+				
+				const html = await response.text();
+
+				document.open();
+				document.write(html);
+				document.close();
+
+			} catch (error) {
+				loadingMsg.innerHTML = "<li>Error fetching data.</li>";
+				console.error(error);
+			}
+		}
+	</script>
+</body>
+</html>
