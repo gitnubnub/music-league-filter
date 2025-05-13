@@ -190,7 +190,7 @@ def get_shorter_than():
 				print(title)
 				print(duration)
 
-				if duration < durationMax and duration > 0:
+				if duration <= durationMax and duration > 0:
 					durations.append(duration)
 					filtered.append(track)
 
