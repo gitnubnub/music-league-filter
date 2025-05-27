@@ -24,6 +24,14 @@ nltk.download('punkt')
 english_vocab = set(words.words())
 english_names = set(names.words())
 
+def load_surnames(path="surnames.txt"):
+	surnames = set()
+	with open(path, encoding="latin-1") as f:
+		for line in f:
+			if line.strip():
+				surnames.add(line.split()[0].lower().capitalize())
+	return surnames
+
 def save_scrobbles(username, scrobbles):
 	with open(f"data/{username}_all_scrobbles", 'w', encoding='utf-8') as f:
 		json.dump(scrobbles, f)
@@ -47,9 +55,9 @@ def load_top1000(username):
 		return None
 
 def is_english_word(word):
-    word_clean = word.lower().strip(string.punctuation)
-    lemma = lemmatizer.lemmatize(word_clean)
-    return lemma in english_vocab or word.capitalize() in english_names
+	word_clean = word.lower().strip(string.punctuation)
+	lemma = lemmatizer.lemmatize(word_clean)
+	return lemma in english_vocab or word.capitalize() in english_names
 
 @app.route('/')
 def index():
@@ -154,7 +162,7 @@ def get_shorter_than():
 	durationMax = data.get("duration")
 	dataset = data.get("dataset")
 
-	if dataset == "all scrobbles" or dataset == "all scrobbles shorter than 2 minutes" or dataset == "all scrobbles not in English" or dataset == "all scrobbles with maximum 5 characters":
+	if dataset == "all scrobbles" or dataset == "all scrobbles shorter than 2 minutes" or dataset == "all scrobbles not in English" or dataset == "all scrobbles with maximum 5 characters" or dataset == "all scrobbles with the same titles" or dataset == "all scrobbles that are names":
 		unfiltered = load_scrobbles(username)
 		filtered = []
 		durations = []
@@ -204,7 +212,7 @@ def get_shorter_than():
 		
 		return render_template("results.html", tracks = filtered, username = username, content = "all scrobbles shorter than 2 minutes", durations = durations, playcounts = playcounts)
 	
-	if dataset == "top 1000 tracks" or dataset == "top tracks shorter than 2 minutes" or dataset == "top tracks not in English" or dataset == "top tracks with maximum 5 characters":
+	if dataset == "top 1000 tracks" or dataset == "top tracks shorter than 2 minutes" or dataset == "top tracks not in English" or dataset == "top tracks with maximum 5 characters" or dataset == "top tracks with the same titles" or dataset == "top tracks that are names":
 		unfiltered = load_top1000(username)
 		filtered = []
 
@@ -227,7 +235,7 @@ def get_songs_not_in():
 
 	filtered = []
 
-	if dataset == "all scrobbles" or dataset == "all scrobbles shorter than 2 minutes" or dataset == "all scrobbles not in English" or dataset == "all scrobbles with maximum 5 characters":
+	if dataset == "all scrobbles" or dataset == "all scrobbles shorter than 2 minutes" or dataset == "all scrobbles not in English" or dataset == "all scrobbles with maximum 5 characters" or dataset == "all scrobbles with the same titles" or dataset == "all scrobbles that are names":
 		unfiltered = load_scrobbles(username)
 
 		for track in unfiltered:
@@ -240,7 +248,7 @@ def get_songs_not_in():
 			
 		return render_template("results.html", tracks = filtered, username = username, content = "all scrobbles not in English")
 	
-	if dataset == "top 1000 tracks" or dataset == "top tracks shorter than 2 minutes" or dataset == "top tracks not in English" or dataset == "top tracks with maximum 5 characters":
+	if dataset == "top 1000 tracks" or dataset == "top tracks shorter than 2 minutes" or dataset == "top tracks not in English" or dataset == "top tracks with maximum 5 characters" or dataset == "top tracks with the same titles" or dataset == "top tracks that are names":
 		unfiltered = load_top1000(username)
 
 		for track in unfiltered:
@@ -265,7 +273,7 @@ def get_titles_under():
 
 	filtered = []
 
-	if dataset == "all scrobbles" or dataset == "all scrobbles shorter than 2 minutes" or dataset == "all scrobbles not in English" or dataset == "all scrobbles with maximum 5 characters":
+	if dataset == "all scrobbles" or dataset == "all scrobbles shorter than 2 minutes" or dataset == "all scrobbles not in English" or dataset == "all scrobbles with maximum 5 characters" or dataset == "all scrobbles with the same titles" or dataset == "all scrobbles that are names":
 		unfiltered = load_scrobbles(username)
 
 		for track in unfiltered:
@@ -276,7 +284,7 @@ def get_titles_under():
 			
 		return render_template("results.html", tracks = filtered, username = username, content = "all scrobbles with maximum 5 characters")
 	
-	if dataset == "top 1000 tracks" or dataset == "top tracks shorter than 2 minutes" or dataset == "top tracks not in English" or dataset == "top tracks with maximum 5 characters":
+	if dataset == "top 1000 tracks" or dataset == "top tracks shorter than 2 minutes" or dataset == "top tracks not in English" or dataset == "top tracks with maximum 5 characters" or dataset == "top tracks with the same titles" or dataset == "top tracks that are names":
 		unfiltered = load_top1000(username)
 
 		for track in unfiltered:
@@ -290,5 +298,92 @@ def get_titles_under():
 	else:
 		return None
 
+@app.route('/twins', methods=['POST'])
+def get_same_titles():
+	data = request.get_json()
+	username = data.get("username")
+	dataset = data.get("dataset")
+
+	filtered = []
+
+	if dataset == "all scrobbles" or dataset == "all scrobbles shorter than 2 minutes" or dataset == "all scrobbles not in English" or dataset == "all scrobbles with maximum 5 characters" or dataset == "all scrobbles with the same titles" or dataset == "all scrobbles that are names":
+		unfiltered = load_scrobbles(username)
+		seen_titles = []
+		seen_songs = []
+
+		for track in unfiltered:
+			title = track.get("name", "")
+
+			if title in seen_titles:
+				filtered.append(track)
+
+				seen_song = seen_songs[seen_titles.index(title)]
+				if seen_song not in filtered:
+					filtered.append(seen_song)
+			else:
+				seen_titles.append(title)
+				seen_songs.append(track)
+			
+		return render_template("results.html", tracks = filtered, username = username, content = "all scrobbles with the same titles")
+	
+	if dataset == "top 1000 tracks" or dataset == "top tracks shorter than 2 minutes" or dataset == "top tracks not in English" or dataset == "top tracks with maximum 5 characters" or dataset == "top tracks with the same titles" or dataset == "top tracks that are names":
+		unfiltered = load_top1000(username)
+		seen_titles = []
+		seen_songs = []
+
+		for track in unfiltered:
+			title = track.get("name", "")
+
+			if title in seen_titles:
+				filtered.append(track)
+
+				seen_song = seen_songs[seen_titles.index(title)]
+				if seen_song not in filtered:
+					filtered.append(seen_song)
+			else:
+				seen_titles.append(title)
+				seen_songs.append(track)
+		
+		return render_template("results.html", tracks = filtered, username = username, content = "top tracks with the same titles")
+	
+	else:
+		return None
+
+@app.route('/namecheck', methods=['POST'])
+def get_songs_with_names():
+	data = request.get_json()
+	username = data.get("username")
+	dataset = data.get("dataset")
+	english_surnames = load_surnames()
+
+	filtered = []
+
+	if dataset == "all scrobbles" or dataset == "all scrobbles shorter than 2 minutes" or dataset == "all scrobbles not in English" or dataset == "all scrobbles with maximum 5 characters" or dataset == "all scrobbles with the same titles" or dataset == "all scrobbles that are names":
+		unfiltered = load_scrobbles(username)
+
+		for track in unfiltered:
+			title = track.get("name", "")
+			words_in_title = word_tokenize(title)
+
+			if len(words_in_title) == 2 and words_in_title[0].lower().capitalize() in english_names and words_in_title[1].lower().capitalize() in english_surnames:
+				filtered.append(track)
+			
+		return render_template("results.html", tracks = filtered, username = username, content = "all scrobbles that are names")
+	
+	if dataset == "top 1000 tracks" or dataset == "top tracks shorter than 2 minutes" or dataset == "top tracks not in English" or dataset == "top tracks with maximum 5 characters" or dataset == "top tracks with the same titles" or dataset == "top tracks that are names":
+		unfiltered = load_top1000(username)
+
+		for track in unfiltered:
+			title = track.get("name", "")
+			words_in_title = word_tokenize(title)
+			
+			if len(words_in_title) == 2 and words_in_title[0].lower().capitalize() in english_names and words_in_title[1].lower().capitalize() in english_surnames:
+				filtered.append(track)
+		
+		return render_template("results.html", tracks = filtered, username = username, content = "top tracks that are names")
+	
+	else:
+		return None
+	
 if __name__ == '__main__':
 	app.run(debug=True)

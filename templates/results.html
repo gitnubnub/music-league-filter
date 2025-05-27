@@ -35,6 +35,8 @@
 		<button onclick="shortNsweet(2)">Songs under 2 minutes</button>
 		<button onclick="nonParliamo()">Songs not in English</button>
 		<button onclick="dontSpeak(5)">Songs with maximum 5 character titles</button>
+		<button onclick="twins()">Songs with the same titles</button>
+		<button onclick="namecheck()">Songs that are names</button>
 	</p>
 
 	{% for track in tracks %}
@@ -129,6 +131,60 @@
 						"Content-Type": "application/json"
 					},
 					body: JSON.stringify({ username: username, chars: length, dataset: content })
+				});
+				
+				const html = await response.text();
+
+				document.open();
+				document.write(html);
+				document.close();
+
+			} catch (error) {
+				console.error(error);
+			}
+		}
+
+		async function twins() {
+			const username = "{{ username }}";
+			const content = "{{ content }}"
+
+			const loadingMsg = document.getElementById("buttons");
+			loadingMsg.innerHTML = "Checking all tracks...\nThis might take a while.";
+
+			try {
+				const response = await fetch("/twins", {
+					method: "POST",
+					headers: {
+						"Content-Type": "application/json"
+					},
+					body: JSON.stringify({ username: username, dataset: content })
+				});
+				
+				const html = await response.text();
+
+				document.open();
+				document.write(html);
+				document.close();
+
+			} catch (error) {
+				console.error(error);
+			}
+		}
+
+		async function namecheck() {
+			const username = "{{ username }}";
+			const content = "{{ content }}"
+
+			const loadingMsg = document.getElementById("buttons");
+			loadingMsg.innerHTML = "Checking all tracks...\nThis might take a while.";
+
+			try {
+				const response = await fetch("/namecheck", {
+					method: "POST",
+					headers: {
+						"Content-Type": "application/json"
+					},
+					body: JSON.stringify({ username: username, dataset: content })
 				});
 				
 				const html = await response.text();
