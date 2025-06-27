@@ -9,6 +9,8 @@ A simple Flask web app for filtering songs from your Last.fm profile data, tailo
 - ⏱️ **Songs shorter than 2 minutes (ROUND 2)**: Checks durations, unfortunately a lot of tracks don't have data for this on Last.fm (especially when coming from all scrobbles, where it must be retrieved per individual song).
 - 🌍 **Songs not in English (ROUND 3)**: Checks titles for English words and eliminates them from the list, but it typically doesn't recognize geographic or non-typical names. As such, in this case, songs that don't count for this category can still show up. Use with common sense and/or a lyrics website.
 - 🔠 **Songs with 5 or less characters (ROUND 5)**: The least complicated, defined as in the round description and works well.
+- 👯 **Songs with same titles (CANCELLED ROUND/GENERAL)**: Checks for songs with the same title, useful for finding covers.
+- 🙋 **Songs named after a person (ROUND 7)**: Checks for 2 word titles and compares the first word with a set of names and the second with a set of surnames (works best with English names and surnames).
 
 
 ## 🔧 Setup Instructions
