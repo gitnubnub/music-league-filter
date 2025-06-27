@@ -11,7 +11,7 @@ A simple Flask web app for filtering songs from your Last.fm profile data, tailo
 - 🔠 **Songs with 5 or less characters (ROUND 5)**: The least complicated, defined as in the round description and works well.
 - 👯 **Songs with same titles (CANCELLED ROUND/GENERAL)**: Checks for songs with the same title, useful for finding covers.
 - 🙋 **Songs named after a person (ROUND 7)**: Checks for 2 word titles and compares the first word with a set of names and the second with a set of surnames (works best with English names and surnames).
-
+- 🥈 **Songs that peaked at #2 (ROUND 8)**: Checks the songs against that playlist from the round description.
 
 ## 🔧 Setup Instructions
 
