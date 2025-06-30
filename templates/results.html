@@ -38,6 +38,7 @@
 		<button onclick="twins()">Songs with the same titles</button>
 		<button onclick="namecheck()">Songs that are names</button>
 		<button onclick="number2s()">Songs that peaked at #2</button>
+		<button onclick="curseWords()">Songs with explicit titles</button>
 	</p>
 
 	{% for track in tracks %}
@@ -208,6 +209,33 @@
 
 			try {
 				const response = await fetch("/denied", {
+					method: "POST",
+					headers: {
+						"Content-Type": "application/json"
+					},
+					body: JSON.stringify({ username: username, dataset: content })
+				});
+				
+				const html = await response.text();
+
+				document.open();
+				document.write(html);
+				document.close();
+
+			} catch (error) {
+				console.error(error);
+			}
+		}
+
+		async function curseWords() {
+			const username = "{{ username }}";
+			const content = "{{ content }}"
+
+			const loadingMsg = document.getElementById("buttons");
+			loadingMsg.innerHTML = "Checking all tracks...\nThis might take a while.";
+
+			try {
+				const response = await fetch("/profane", {
 					method: "POST",
 					headers: {
 						"Content-Type": "application/json"

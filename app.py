@@ -8,6 +8,7 @@ from nltk.corpus import words, names
 from nltk.stem import WordNetLemmatizer
 from nltk.tokenize import word_tokenize
 import csv
+from better_profanity import profanity
 
 load_dotenv()
 
@@ -24,6 +25,27 @@ nltk.download('names')
 nltk.download('punkt')
 english_vocab = set(words.words())
 english_names = set(names.words())
+
+LEETSPEAK_MAP = {
+    '1': 'i',
+    '!': 'i',
+    '@': 'a',
+    '3': 'e',
+    '4': 'a',
+    '$': 's',
+    '5': 's',
+    '7': 't',
+    '0': 'o',
+    '9': 'g',
+    '+': 't',
+    '#': 'h',
+}
+
+def normalize_leetspeak(text: str) -> str:
+    text = text.lower()
+    for leet, char in LEETSPEAK_MAP.items():
+        text = text.replace(leet, char)
+    return text
 
 def load_surnames(path="surnames.txt"):
 	surnames = set()
@@ -173,7 +195,7 @@ def get_shorter_than():
 	durationMax = data.get("duration")
 	dataset = data.get("dataset")
 
-	if dataset == "all scrobbles" or dataset == "all scrobbles shorter than 2 minutes" or dataset == "all scrobbles not in English" or dataset == "all scrobbles with maximum 5 characters" or dataset == "all scrobbles with the same titles" or dataset == "all scrobbles that are names" or dataset == "all scrobbles that peaked at #2":
+	if dataset == "all scrobbles" or dataset == "all scrobbles shorter than 2 minutes" or dataset == "all scrobbles not in English" or dataset == "all scrobbles with maximum 5 characters" or dataset == "all scrobbles with the same titles" or dataset == "all scrobbles that are names" or dataset == "all scrobbles that peaked at #2" or dataset == "all scrobbles with explicit titles":
 		unfiltered = load_scrobbles(username)
 		filtered = []
 		durations = []
@@ -223,7 +245,7 @@ def get_shorter_than():
 		
 		return render_template("results.html", tracks = filtered, username = username, content = "all scrobbles shorter than 2 minutes", durations = durations, playcounts = playcounts)
 	
-	if dataset == "top 1000 tracks" or dataset == "top tracks shorter than 2 minutes" or dataset == "top tracks not in English" or dataset == "top tracks with maximum 5 characters" or dataset == "top tracks with the same titles" or dataset == "top tracks that are names" or dataset == "top tracks that peaked at #2":
+	if dataset == "top 1000 tracks" or dataset == "top tracks shorter than 2 minutes" or dataset == "top tracks not in English" or dataset == "top tracks with maximum 5 characters" or dataset == "top tracks with the same titles" or dataset == "top tracks that are names" or dataset == "top tracks that peaked at #2" or dataset == "top tracks with explicit titles":
 		unfiltered = load_top1000(username)
 		filtered = []
 
@@ -246,7 +268,7 @@ def get_songs_not_in():
 
 	filtered = []
 
-	if dataset == "all scrobbles" or dataset == "all scrobbles shorter than 2 minutes" or dataset == "all scrobbles not in English" or dataset == "all scrobbles with maximum 5 characters" or dataset == "all scrobbles with the same titles" or dataset == "all scrobbles that are names" or dataset == "all scrobbles that peaked at #2":
+	if dataset == "all scrobbles" or dataset == "all scrobbles shorter than 2 minutes" or dataset == "all scrobbles not in English" or dataset == "all scrobbles with maximum 5 characters" or dataset == "all scrobbles with the same titles" or dataset == "all scrobbles that are names" or dataset == "all scrobbles that peaked at #2" or dataset == "all scrobbles with explicit titles":
 		unfiltered = load_scrobbles(username)
 
 		for track in unfiltered:
@@ -259,7 +281,7 @@ def get_songs_not_in():
 			
 		return render_template("results.html", tracks = filtered, username = username, content = "all scrobbles not in English")
 	
-	if dataset == "top 1000 tracks" or dataset == "top tracks shorter than 2 minutes" or dataset == "top tracks not in English" or dataset == "top tracks with maximum 5 characters" or dataset == "top tracks with the same titles" or dataset == "top tracks that are names" or dataset == "top tracks that peaked at #2":
+	if dataset == "top 1000 tracks" or dataset == "top tracks shorter than 2 minutes" or dataset == "top tracks not in English" or dataset == "top tracks with maximum 5 characters" or dataset == "top tracks with the same titles" or dataset == "top tracks that are names" or dataset == "top tracks that peaked at #2" or dataset == "top tracks with explicit titles":
 		unfiltered = load_top1000(username)
 
 		for track in unfiltered:
@@ -284,7 +306,7 @@ def get_titles_under():
 
 	filtered = []
 
-	if dataset == "all scrobbles" or dataset == "all scrobbles shorter than 2 minutes" or dataset == "all scrobbles not in English" or dataset == "all scrobbles with maximum 5 characters" or dataset == "all scrobbles with the same titles" or dataset == "all scrobbles that are names" or dataset == "all scrobbles that peaked at #2":
+	if dataset == "all scrobbles" or dataset == "all scrobbles shorter than 2 minutes" or dataset == "all scrobbles not in English" or dataset == "all scrobbles with maximum 5 characters" or dataset == "all scrobbles with the same titles" or dataset == "all scrobbles that are names" or dataset == "all scrobbles that peaked at #2" or dataset == "all scrobbles with explicit titles":
 		unfiltered = load_scrobbles(username)
 
 		for track in unfiltered:
@@ -295,7 +317,7 @@ def get_titles_under():
 			
 		return render_template("results.html", tracks = filtered, username = username, content = "all scrobbles with maximum 5 characters")
 	
-	if dataset == "top 1000 tracks" or dataset == "top tracks shorter than 2 minutes" or dataset == "top tracks not in English" or dataset == "top tracks with maximum 5 characters" or dataset == "top tracks with the same titles" or dataset == "top tracks that are names" or dataset == "top tracks that peaked at #2":
+	if dataset == "top 1000 tracks" or dataset == "top tracks shorter than 2 minutes" or dataset == "top tracks not in English" or dataset == "top tracks with maximum 5 characters" or dataset == "top tracks with the same titles" or dataset == "top tracks that are names" or dataset == "top tracks that peaked at #2" or dataset == "top tracks with explicit titles":
 		unfiltered = load_top1000(username)
 
 		for track in unfiltered:
@@ -317,7 +339,7 @@ def get_same_titles():
 
 	filtered = []
 
-	if dataset == "all scrobbles" or dataset == "all scrobbles shorter than 2 minutes" or dataset == "all scrobbles not in English" or dataset == "all scrobbles with maximum 5 characters" or dataset == "all scrobbles with the same titles" or dataset == "all scrobbles that are names" or dataset == "all scrobbles that peaked at #2":
+	if dataset == "all scrobbles" or dataset == "all scrobbles shorter than 2 minutes" or dataset == "all scrobbles not in English" or dataset == "all scrobbles with maximum 5 characters" or dataset == "all scrobbles with the same titles" or dataset == "all scrobbles that are names" or dataset == "all scrobbles that peaked at #2" or dataset == "all scrobbles with explicit titles":
 		unfiltered = load_scrobbles(username)
 		seen_titles = []
 		seen_songs = []
@@ -337,7 +359,7 @@ def get_same_titles():
 			
 		return render_template("results.html", tracks = filtered, username = username, content = "all scrobbles with the same titles")
 	
-	if dataset == "top 1000 tracks" or dataset == "top tracks shorter than 2 minutes" or dataset == "top tracks not in English" or dataset == "top tracks with maximum 5 characters" or dataset == "top tracks with the same titles" or dataset == "top tracks that are names" or dataset == "top tracks that peaked at #2":
+	if dataset == "top 1000 tracks" or dataset == "top tracks shorter than 2 minutes" or dataset == "top tracks not in English" or dataset == "top tracks with maximum 5 characters" or dataset == "top tracks with the same titles" or dataset == "top tracks that are names" or dataset == "top tracks that peaked at #2" or dataset == "top tracks with explicit titles":
 		unfiltered = load_top1000(username)
 		seen_titles = []
 		seen_songs = []
@@ -369,7 +391,7 @@ def get_songs_with_names():
 
 	filtered = []
 
-	if dataset == "all scrobbles" or dataset == "all scrobbles shorter than 2 minutes" or dataset == "all scrobbles not in English" or dataset == "all scrobbles with maximum 5 characters" or dataset == "all scrobbles with the same titles" or dataset == "all scrobbles that are names" or dataset == "all scrobbles that peaked at #2":
+	if dataset == "all scrobbles" or dataset == "all scrobbles shorter than 2 minutes" or dataset == "all scrobbles not in English" or dataset == "all scrobbles with maximum 5 characters" or dataset == "all scrobbles with the same titles" or dataset == "all scrobbles that are names" or dataset == "all scrobbles that peaked at #2" or dataset == "all scrobbles with explicit titles":
 		unfiltered = load_scrobbles(username)
 
 		for track in unfiltered:
@@ -381,7 +403,7 @@ def get_songs_with_names():
 			
 		return render_template("results.html", tracks = filtered, username = username, content = "all scrobbles that are names")
 	
-	if dataset == "top 1000 tracks" or dataset == "top tracks shorter than 2 minutes" or dataset == "top tracks not in English" or dataset == "top tracks with maximum 5 characters" or dataset == "top tracks with the same titles" or dataset == "top tracks that are names" or dataset == "top tracks that peaked at #2":
+	if dataset == "top 1000 tracks" or dataset == "top tracks shorter than 2 minutes" or dataset == "top tracks not in English" or dataset == "top tracks with maximum 5 characters" or dataset == "top tracks with the same titles" or dataset == "top tracks that are names" or dataset == "top tracks that peaked at #2" or dataset == "top tracks with explicit titles":
 		unfiltered = load_top1000(username)
 
 		for track in unfiltered:
@@ -405,7 +427,7 @@ def compare_to_playlist():
 	filtered = []
 	playlist_tracks = set(load_playlist_from_csv())
 
-	if dataset == "all scrobbles" or dataset == "all scrobbles shorter than 2 minutes" or dataset == "all scrobbles not in English" or dataset == "all scrobbles with maximum 5 characters" or dataset == "all scrobbles with the same titles" or dataset == "all scrobbles that are names" or dataset == "all scrobbles that peaked at #2":
+	if dataset == "all scrobbles" or dataset == "all scrobbles shorter than 2 minutes" or dataset == "all scrobbles not in English" or dataset == "all scrobbles with maximum 5 characters" or dataset == "all scrobbles with the same titles" or dataset == "all scrobbles that are names" or dataset == "all scrobbles that peaked at #2" or dataset == "all scrobbles with explicit titles":
 		unfiltered = load_scrobbles(username)
 
 		for track in unfiltered:
@@ -418,7 +440,7 @@ def compare_to_playlist():
 			
 		return render_template("results.html", tracks = filtered, username = username, content = "all scrobbles that peaked at #2")
 	
-	if dataset == "top 1000 tracks" or dataset == "top tracks shorter than 2 minutes" or dataset == "top tracks not in English" or dataset == "top tracks with maximum 5 characters" or dataset == "top tracks with the same titles" or dataset == "top tracks that are names" or dataset == "top tracks that peaked at #2":
+	if dataset == "top 1000 tracks" or dataset == "top tracks shorter than 2 minutes" or dataset == "top tracks not in English" or dataset == "top tracks with maximum 5 characters" or dataset == "top tracks with the same titles" or dataset == "top tracks that are names" or dataset == "top tracks that peaked at #2" or dataset == "top tracks with explicit titles":
 		unfiltered = load_top1000(username)
 
 		for track in unfiltered:
@@ -430,6 +452,39 @@ def compare_to_playlist():
 				filtered.append(track)
 		
 		return render_template("results.html", tracks = filtered, username = username, content = "top tracks that peaked at #2")
+	
+	else:
+		return None
+	
+@app.route('/profane', methods=['POST'])
+def check_for_explicit():
+	data = request.get_json()
+	username = data.get("username")
+	dataset = data.get("dataset")
+
+	filtered = []
+
+	if dataset == "all scrobbles" or dataset == "all scrobbles shorter than 2 minutes" or dataset == "all scrobbles not in English" or dataset == "all scrobbles with maximum 5 characters" or dataset == "all scrobbles with the same titles" or dataset == "all scrobbles that are names" or dataset == "all scrobbles that peaked at #2" or dataset == "all scrobbles with explicit titles":
+		unfiltered = load_scrobbles(username)
+
+		for track in unfiltered:
+			title = track.get("name", "")
+
+			if '*' in title or profanity.contains_profanity(normalize_leetspeak(title)):
+				filtered.append(track)
+			
+		return render_template("results.html", tracks = filtered, username = username, content = "all scrobbles with explicit titles")
+	
+	if dataset == "top 1000 tracks" or dataset == "top tracks shorter than 2 minutes" or dataset == "top tracks not in English" or dataset == "top tracks with maximum 5 characters" or dataset == "top tracks with the same titles" or dataset == "top tracks that are names" or dataset == "top tracks that peaked at #2" or dataset == "top tracks with explicit titles":
+		unfiltered = load_top1000(username)
+
+		for track in unfiltered:
+			title = track.get("name", "")
+
+			if '*' in title or profanity.contains_profanity(normalize_leetspeak(title)):
+				filtered.append(track)
+		
+		return render_template("results.html", tracks = filtered, username = username, content = "top tracks with explicit titles")
 	
 	else:
 		return None
